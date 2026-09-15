@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 import pandas as pd
 
 from .config import MAIN_DATE_COLUMN, GTThresholds, DEFAULT_THRESHOLDS
@@ -85,6 +87,27 @@ def read_main_export(path: Path) -> pd.DataFrame:
     raise ValueError(f"Unsupported MAIN input type: {suffix or '<none>'}; use .xlsx or .csv")
 
 
+def _format_workbook(output_path: Path) -> None:
+    workbook = load_workbook(output_path)
+    for sheet in workbook.worksheets:
+        sheet.freeze_panes = "A2"
+        if sheet.max_row >= 1 and sheet.max_column >= 1:
+            sheet.auto_filter.ref = sheet.dimensions
+
+        for column_index in range(1, sheet.max_column + 1):
+            values = [sheet.cell(row=row, column=column_index).value for row in range(1, sheet.max_row + 1)]
+            width = max((len(str(value)) for value in values if value is not None), default=0)
+            sheet.column_dimensions[get_column_letter(column_index)].width = min(max(width + 2, 12), 40)
+
+    report = workbook["RUN_REPORT"]
+    headers = {cell.value: cell.column for cell in report[1]}
+    anomaly_rate_column = headers.get("GT_Anomaly_Rate")
+    if anomaly_rate_column is not None and report.max_row >= 2:
+        report.cell(row=2, column=anomaly_rate_column).number_format = "0.0%"
+
+    workbook.save(output_path)
+
+
 def write_result(result: ProcessingResult, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
@@ -95,3 +118,5 @@ def write_result(result: ProcessingResult, output_path: Path) -> None:
             if candidate in {"RUN_REPORT", "PROCESSED"}:
                 candidate = f"DAY_{candidate}"[:31]
             frame.to_excel(writer, index=False, sheet_name=candidate)
+
+    _format_workbook(output_path)
