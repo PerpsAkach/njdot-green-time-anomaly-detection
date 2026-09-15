@@ -7,6 +7,7 @@ import re
 import pandas as pd
 
 from .config import MAIN_DATE_COLUMN, GTThresholds, DEFAULT_THRESHOLDS
+from .data_quality import summarize_main_data_quality
 from .gt_anomaly import add_gt_anomaly_columns
 
 
@@ -51,6 +52,7 @@ def build_run_report(processed: pd.DataFrame, source_name: str) -> pd.DataFrame:
         "Anomaly_Low": int((severity == "Anomaly-Low").sum()),
         "Anomaly_High": int((severity == "Anomaly-High").sum()),
         "Severe_High": int((severity == "Severe-High").sum()),
+        **summarize_main_data_quality(processed),
     }
     row["GT_Anomaly_Rate"] = (
         row["GT_Anomalies"] / row["GT_Valid"] if row["GT_Valid"] else 0.0
@@ -89,7 +91,6 @@ def write_result(result: ProcessingResult, output_path: Path) -> None:
         result.report.to_excel(writer, index=False, sheet_name="RUN_REPORT")
         result.processed.to_excel(writer, index=False, sheet_name="PROCESSED")
         for sheet_name, frame in result.daily_frames.items():
-            # Avoid collisions with reserved sheets if a source date label is unusual.
             candidate = sheet_name
             if candidate in {"RUN_REPORT", "PROCESSED"}:
                 candidate = f"DAY_{candidate}"[:31]
