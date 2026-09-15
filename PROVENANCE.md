@@ -38,17 +38,22 @@ New portfolio-quality engineering added after reconstruction:
 - ratio and row-level threshold fields;
 - severity labels;
 - CSV as well as XLSX MAIN ingestion;
+- safe handling of empty exports with the required schema;
 - non-destructive data-quality metrics;
 - duplicate date/time-key screening;
 - parseable-date grouping and per-day workbook sheets;
-- sanitized demonstration data;
+- review-oriented workbook formatting with frozen headers, filters, bounded widths, and percentage formatting;
+- UTC-stamped output filenames for unambiguous run traceability;
+- sanitized demonstration data with stable expected-result tests;
 - reusable processing/reporting functions;
 - expanded unit and workbook integration tests;
 - Python 3.11 / 3.12 / 3.13 GitHub Actions CI;
 - source compilation checks;
+- Ruff linting as a quality gate;
+- `pip-audit` dependency-vulnerability scanning;
 - sanitized end-to-end CLI smoke testing;
 - bounded dependency ranges;
-- explicit operational-safety and implementation-boundary documentation.
+- explicit input/output contracts, operational-safety documentation, and implementation-status tracking.
 
 ## UNVERIFIED / NOT CLAIMED
 
