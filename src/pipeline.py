@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
-import re
 
+import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-import pandas as pd
 
-from .config import MAIN_DATE_COLUMN, GTThresholds, DEFAULT_THRESHOLDS
+from .config import DEFAULT_THRESHOLDS, MAIN_DATE_COLUMN, GTThresholds
 from .data_quality import summarize_main_data_quality
 from .gt_anomaly import add_gt_anomaly_columns
 
@@ -45,7 +45,7 @@ def build_run_report(processed: pd.DataFrame, source_name: str) -> pd.DataFrame:
 
     row = {
         "Source_MAIN": source_name,
-        "Rows": int(len(processed)),
+        "Rows": len(processed),
         "GT_Valid": int(valid.sum()),
         "GT_Invalid": int((anomaly == "Invalid").sum()),
         "GT_Anomalies": int((anomaly == "Anomaly").sum()),
@@ -95,9 +95,17 @@ def _format_workbook(output_path: Path) -> None:
             sheet.auto_filter.ref = sheet.dimensions
 
         for column_index in range(1, sheet.max_column + 1):
-            values = [sheet.cell(row=row, column=column_index).value for row in range(1, sheet.max_row + 1)]
-            width = max((len(str(value)) for value in values if value is not None), default=0)
-            sheet.column_dimensions[get_column_letter(column_index)].width = min(max(width + 2, 12), 40)
+            values = [
+                sheet.cell(row=row, column=column_index).value
+                for row in range(1, sheet.max_row + 1)
+            ]
+            width = max(
+                (len(str(value)) for value in values if value is not None),
+                default=0,
+            )
+            sheet.column_dimensions[get_column_letter(column_index)].width = min(
+                max(width + 2, 12), 40
+            )
 
     report = workbook["RUN_REPORT"]
     headers = {cell.value: cell.column for cell in report[1]}
