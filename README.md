@@ -14,6 +14,8 @@ This repository is a sanitized portfolio reconstruction of an operational traffi
 
 The system is deliberately **explainable and non-autonomous**. It supports operator review; it does not control traffic signals, infer controller faults from a single short Green Time, or replace engineering judgment.
 
+Detailed contracts: [`INPUT_CONTRACT.md`](docs/INPUT_CONTRACT.md) · [`OUTPUT_CONTRACT.md`](docs/OUTPUT_CONTRACT.md) · [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md)
+
 ## Current implemented workflow
 
 ```mermaid
@@ -44,9 +46,9 @@ High anomaly:  GT > 1.50 × GT_mean
 Default severity tiers are:
 
 ```text
-Severe-Low:  GT <= 5 seconds OR GT < 0.35 × GT_mean
-Anomaly-Low: GT < 0.50 × GT_mean
-Normal:      0.50 × GT_mean <= GT <= 1.50 × GT_mean
+Severe-Low:   GT <= 5 seconds OR GT < 0.35 × GT_mean
+Anomaly-Low:  GT < 0.50 × GT_mean
+Normal:       0.50 × GT_mean <= GT <= 1.50 × GT_mean
 Anomaly-High: GT > 1.50 × GT_mean
 Severe-High:  GT > 2.00 × GT_mean
 ```
@@ -100,6 +102,8 @@ PROCESSED
 [YYYY-MM-DD daily sheets when available]
 ```
 
+Generated sheets freeze the header row, enable filters, and use bounded column widths for review usability. `GT_Anomaly_Rate` is formatted as a percentage in `RUN_REPORT`.
+
 ## Phase / signal-group distinction
 
 Recovered project context established an important conceptual distinction:
@@ -120,7 +124,7 @@ python run_pipeline.py \
   --output outputs
 ```
 
-A timestamped Excel workbook will be written to `outputs/`.
+A timestamped Excel workbook will be written to `outputs/`. Output filenames use a UTC timestamp (`YYYYMMDD_HHMMSSZ`) for unambiguous run traceability.
 
 Run with custom thresholds:
 
@@ -149,17 +153,25 @@ Unit + integration tests
 Sanitized CLI end-to-end smoke run
         ↓
 Workbook existence check
+
+Ruff linting runs as a separate quality gate.
+pip-audit runs as a separate dependency-security gate.
 ```
 
-The automated tests cover classifier boundaries, severity tiers, invalid input reason codes, custom threshold validation, DataFrame enrichment, phase-flag separation, data-quality metrics, CSV/XLSX ingestion, daily grouping, run-report calculations, and workbook generation.
+The automated tests cover classifier boundaries, severity tiers, invalid input reason codes, custom threshold validation, DataFrame enrichment, empty exports, phase-flag separation, data-quality metrics, CSV/XLSX ingestion, daily grouping, run-report calculations, sanitized-sample expectations, workbook generation, and workbook usability formatting.
 
 ## Repository structure
 
 ```text
+docs/
+├── INPUT_CONTRACT.md        # accepted schema and invalid-row policy
+└── OUTPUT_CONTRACT.md       # workbook and derived-field contract
+
 sample_data/
 └── main_sanitized.csv       # fictional/sanitized demonstration input
 
 src/
+├── __init__.py
 ├── config.py                # validated threshold configuration and schema names
 ├── data_quality.py          # non-destructive MAIN quality metrics
 ├── gt_anomaly.py            # explainable row-level classifier
@@ -170,8 +182,11 @@ tests/
 ├── test_data_quality.py
 ├── test_gt_anomaly.py
 ├── test_phase_flag.py
-└── test_pipeline.py
+├── test_pipeline.py
+└── test_sample_data.py
 
+IMPLEMENTATION_STATUS.md     # implemented vs intentionally excluded scope
+PROVENANCE.md                # recovered / reconstructed / enhanced boundary
 run_pipeline.py              # command-line entry point
 ```
 
@@ -186,7 +201,7 @@ run_pipeline.py              # command-line entry point
 - temporal grouping
 - explicit data-quality metrics
 - separation of anomaly screening from diagnostic/root-cause claims
-- automated testing and multi-version CI
+- automated testing, linting, dependency auditing, and multi-version CI
 - public-data sanitization and provenance discipline
 
 ## Safety and operational boundary
