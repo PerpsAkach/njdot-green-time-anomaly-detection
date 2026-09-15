@@ -38,6 +38,20 @@ def test_process_frame_without_date_column_still_processes():
     assert len(result.processed) == 4
 
 
+def test_empty_export_with_required_schema_is_safe():
+    frame = pd.DataFrame(columns=["Green Time (Sec)", "GT_mean"])
+    result = process_frame(frame, source_name="empty.csv")
+    report = result.report.iloc[0]
+
+    assert len(result.processed) == 0
+    assert report["Rows"] == 0
+    assert report["GT_Valid"] == 0
+    assert report["GT_Invalid"] == 0
+    assert report["GT_Anomalies"] == 0
+    assert report["GT_Anomaly_Rate"] == 0.0
+    assert result.daily_frames == {}
+
+
 def test_write_result_creates_auditable_workbook(tmp_path: Path):
     result = process_frame(sample_frame(), source_name="sanitized.xlsx")
     output = tmp_path / "screened.xlsx"
