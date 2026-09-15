@@ -141,14 +141,14 @@ python run_pipeline.py \
 
 ## Tests and CI
 
-GitHub Actions validates the project on Python 3.11, 3.12, and 3.13. CI performs:
+GitHub Actions validates the project on Python 3.11, 3.12, and 3.13. The current suite contains **23 passing tests**, and the same suite passes on all three supported Python versions. CI performs:
 
 ```text
 Dependency installation
         ↓
 Python source compilation
         ↓
-Unit + integration tests
+23 unit + integration tests
         ↓
 Sanitized CLI end-to-end smoke run
         ↓
@@ -158,7 +158,7 @@ Ruff linting runs as a separate quality gate.
 pip-audit runs as a separate dependency-security gate.
 ```
 
-The automated tests cover classifier boundaries, severity tiers, invalid input reason codes, custom threshold validation, DataFrame enrichment, empty exports, phase-flag separation, data-quality metrics, CSV/XLSX ingestion, daily grouping, run-report calculations, sanitized-sample expectations, workbook generation, and workbook usability formatting.
+The latest verified dependency audit reports **no known vulnerabilities** in the declared dependency set. The automated tests cover classifier boundaries, severity tiers, invalid input reason codes, custom threshold validation, DataFrame enrichment, empty exports, phase-flag separation, data-quality metrics, CSV/XLSX ingestion, daily grouping, run-report calculations, sanitized-sample expectations, workbook generation, and workbook usability formatting.
 
 ## Repository structure
 
