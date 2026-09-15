@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from openpyxl import load_workbook
 import pandas as pd
 import pytest
+from openpyxl import load_workbook
 
 from src.pipeline import process_frame, read_main_export, write_result
 
@@ -10,7 +10,12 @@ from src.pipeline import process_frame, read_main_export, write_result
 def sample_frame() -> pd.DataFrame:
     return pd.DataFrame(
         {
-            "DateConverted Hierarchy - Date": ["2026-01-01", "2026-01-01", "2026-01-02", "bad-date"],
+            "DateConverted Hierarchy - Date": [
+                "2026-01-01",
+                "2026-01-01",
+                "2026-01-02",
+                "bad-date",
+            ],
             "Time": ["08:00", "08:05", "08:00", "08:10"],
             "Green Time (Sec)": [100, 49, 205, "bad"],
             "GT_mean": [100, 100, 100, 100],
@@ -60,7 +65,12 @@ def test_write_result_creates_auditable_workbook(tmp_path: Path):
 
     assert output.exists()
     workbook = pd.ExcelFile(output, engine="openpyxl")
-    assert workbook.sheet_names == ["RUN_REPORT", "PROCESSED", "2026-01-01", "2026-01-02"]
+    assert workbook.sheet_names == [
+        "RUN_REPORT",
+        "PROCESSED",
+        "2026-01-01",
+        "2026-01-02",
+    ]
 
     report = pd.read_excel(output, sheet_name="RUN_REPORT", engine="openpyxl")
     processed = pd.read_excel(output, sheet_name="PROCESSED", engine="openpyxl")
