@@ -33,3 +33,8 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -q
+
+      - name: Run sanitized CLI smoke test
+        run: |
+          python run_pipeline.py --main sample_data/main_sanitized.csv --output smoke_output
+          test -n "$(find smoke_output -maxdepth 1 -name '*.xlsx' -print -quit)"
