@@ -39,6 +39,24 @@ jobs:
           python run_pipeline.py --main sample_data/main_sanitized.csv --output smoke_output
           test -n "$(find smoke_output -maxdepth 1 -name '*.xlsx' -print -quit)"
 
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Ruff
+        run: python -m pip install --upgrade pip ruff
+
+      - name: Lint source and tests
+        run: ruff check src tests run_pipeline.py
+
   dependency-audit:
     runs-on: ubuntu-latest
     steps:
