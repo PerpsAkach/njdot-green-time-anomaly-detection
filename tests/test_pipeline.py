@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from openpyxl import load_workbook
 import pandas as pd
 import pytest
 
@@ -65,6 +66,16 @@ def test_write_result_creates_auditable_workbook(tmp_path: Path):
     processed = pd.read_excel(output, sheet_name="PROCESSED", engine="openpyxl")
     assert report.loc[0, "GT_Anomalies"] == 2
     assert "GT_Reason" in processed.columns
+
+    styled = load_workbook(output)
+    assert all(sheet.freeze_panes == "A2" for sheet in styled.worksheets)
+    assert all(sheet.auto_filter.ref for sheet in styled.worksheets)
+    rate_column = next(
+        cell.column
+        for cell in styled["RUN_REPORT"][1]
+        if cell.value == "GT_Anomaly_Rate"
+    )
+    assert styled["RUN_REPORT"].cell(2, rate_column).number_format == "0.0%"
 
 
 def test_read_main_export_supports_csv_and_xlsx(tmp_path: Path):
