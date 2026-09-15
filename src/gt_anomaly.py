@@ -5,6 +5,15 @@ import pandas as pd
 
 from .config import DEFAULT_THRESHOLDS, MAIN_GT_COLUMN, MAIN_GT_MEAN_COLUMN, GTThresholds
 
+DERIVED_COLUMNS = [
+    "GT_Anomaly",
+    "GT_Severity",
+    "GT_Ratio",
+    "GT_Low_Threshold",
+    "GT_High_Threshold",
+    "GT_Reason",
+]
+
 
 def _invalid(reason: str) -> dict:
     return {
@@ -86,11 +95,16 @@ def add_gt_anomaly_columns(
     if missing:
         raise ValueError(f"Missing required columns: {sorted(missing)}")
 
+    if df.empty:
+        result = pd.DataFrame(index=df.index, columns=DERIVED_COLUMNS)
+        return pd.concat([df.copy(), result], axis=1)
+
     result = pd.DataFrame(
         [
             classify_green_time(gt, mean, thresholds)
             for gt, mean in zip(df[MAIN_GT_COLUMN], df[MAIN_GT_MEAN_COLUMN])
         ],
         index=df.index,
+        columns=DERIVED_COLUMNS,
     )
     return pd.concat([df.copy(), result], axis=1)
