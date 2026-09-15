@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from src.config import GTThresholds
@@ -18,7 +18,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--high", type=float, default=1.50, help="High anomaly multiplier")
     parser.add_argument("--severe-low", type=float, default=0.35, help="Severe-low multiplier")
     parser.add_argument("--severe-high", type=float, default=2.00, help="Severe-high multiplier")
-    parser.add_argument("--absolute-short", type=float, default=5.0, help="Absolute short-GT guard in seconds")
+    parser.add_argument(
+        "--absolute-short",
+        type=float,
+        default=5.0,
+        help="Absolute short-GT guard in seconds",
+    )
     return parser
 
 
@@ -43,7 +48,8 @@ def main() -> None:
         raise SystemExit(str(exc)) from exc
 
     args.output.mkdir(parents=True, exist_ok=True)
-    output = args.output / f"{args.main.stem}_processed_{datetime.now():%Y%m%d_%H%M%S}.xlsx"
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%SZ")
+    output = args.output / f"{args.main.stem}_processed_{timestamp}.xlsx"
     write_result(result, output)
 
     report = result.report.iloc[0]
