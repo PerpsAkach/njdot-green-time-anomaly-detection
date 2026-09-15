@@ -4,9 +4,9 @@ import pandas as pd
 
 from .config import (
     MAIN_DATE_COLUMN,
-    MAIN_TIME_COLUMN,
     MAIN_GT_COLUMN,
     MAIN_GT_MEAN_COLUMN,
+    MAIN_TIME_COLUMN,
 )
 
 
@@ -36,7 +36,9 @@ def summarize_main_data_quality(frame: pd.DataFrame) -> dict[str, int]:
     if MAIN_DATE_COLUMN in frame.columns and MAIN_TIME_COLUMN in frame.columns:
         complete = frame[[MAIN_DATE_COLUMN, MAIN_TIME_COLUMN]].dropna()
         metrics["Duplicate_Date_Time"] = int(
-            complete.duplicated(subset=[MAIN_DATE_COLUMN, MAIN_TIME_COLUMN], keep=False).sum()
+            complete.duplicated(
+                subset=[MAIN_DATE_COLUMN, MAIN_TIME_COLUMN], keep=False
+            ).sum()
         )
 
     return metrics
