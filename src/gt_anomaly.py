@@ -3,7 +3,12 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from .config import DEFAULT_THRESHOLDS, MAIN_GT_COLUMN, MAIN_GT_MEAN_COLUMN, GTThresholds
+from .config import (
+    DEFAULT_THRESHOLDS,
+    MAIN_GT_COLUMN,
+    MAIN_GT_MEAN_COLUMN,
+    GTThresholds,
+)
 
 DERIVED_COLUMNS = [
     "GT_Anomaly",
